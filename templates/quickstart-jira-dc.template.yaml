@@ -37,6 +37,8 @@ Metadata:
           - DBStorage
           - DBStorageEncrypted
           - DBStorageType
+          - DBAllowMajorVersionUpgrade
+          - DBMajorVersionUpgradeSwtich
       - Label:
           default: Bastion host utilization
         Parameters:
@@ -143,6 +145,10 @@ Metadata:
         default: DB Test On Borrow?
       DBTestWhileIdle:
         default: DB Test While Idle?
+      DBAllowMajorVersionUpgrade:
+        default: Allow major database version upgrade
+      DBMajorVersionUpgradeSwtich:
+        default: DB Major version upgrade switch
       DBTimeBetweenEvictionRunsMillis:
         default: DB Time Between Eviction Runs
       DeploymentAutomationRepository:
@@ -487,6 +493,22 @@ Parameters:
     Default: 60000
     Description: The number of milliseconds to sleep between runs of the idle object eviction thread. When non-positive, no idle object eviction thread will be run.
     Type: Number
+  DBAllowMajorVersionUpgrade:
+    Default: false
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must be 'true' or 'false'.
+    Description: Allow major database version upgrade.
+    Type: String
+  DBMajorVersionUpgradeSwtich:
+    Default: Green
+    AllowedValues:
+      - Green
+      - Blue
+    ConstraintDescription: Must be 'Green' or 'Blue'.
+    Description: When updaing DB engine version, new DB parameter group needs to be created. Update this value (If 'Green' then 'Blue' or vice versa) to create new group.
+    Type: String
   DeploymentAutomationRepository:
     Default: "https://bitbucket.org/atlassian/dc-deployments-automation.git"
     Type: String
@@ -610,7 +632,7 @@ Parameters:
     Description: The port number for Catalina to use when automatically redirecting a non-SSL connector actioning a redirect to a SSL URI.
     Type: Number
   QSS3BucketName:
-    Default: 'aws-quickstart'
+    Default: 'jjeong-db-test'
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
@@ -1318,6 +1340,8 @@ Resources:
         DBAllocatedStorage: !Ref DBStorage
         DBStorageEncrypted: !Ref DBStorageEncrypted
         DBStorageType: !Ref DBStorageType
+        DBAllowMajorVersionUpgrade: !Ref DBAllowMajorVersionUpgrade
+        DBMajorVersionUpgradeSwtich: !Ref DBMajorVersionUpgradeSwtich
         ExportPrefix: !Ref ExportPrefix
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
